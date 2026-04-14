@@ -1,889 +1,571 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bhupendra Choudhary — Shopify Developer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ease: cubic-bezier(0.16, 1, 0.3, 1); }
 
-    :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --card: #16161f;
-      --border: #1e1e2e;
-      --accent: #7c6af7;
-      --accent2: #f97316;
-      --green: #22c55e;
-      --text: #e8e8f0;
-      --muted: #6b6b80;
-      --mono: 'DM Mono', monospace;
-      --serif: 'Playfair Display', serif;
-      --sans: 'DM Sans', sans-serif;
+    [data-theme="dark"] {
+      --bg:#080810; --bg2:#0e0e1a; --bg3:#13131f; --card:#141420;
+      --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+      --text:#f0f0f8; --text2:#9898b8; --text3:#5a5a7a;
+      --accent:#6ee7b7; --accent2:#f472b6; --accent3:#fbbf24;
+      --glow:rgba(110,231,183,0.15); --shadow:0 20px 60px rgba(0,0,0,0.5);
+      --nav-bg:rgba(8,8,16,0.85); --tag-bg:rgba(110,231,183,0.08);
+      --tag-color:#6ee7b7; --tag-border:rgba(110,231,183,0.2);
     }
 
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-weight: 300;
-      overflow-x: hidden;
+    [data-theme="light"] {
+      --bg:#f5f5f0; --bg2:#eeede8; --bg3:#e5e4df; --card:#ffffff;
+      --border:rgba(0,0,0,0.07); --border2:rgba(0,0,0,0.14);
+      --text:#18181b; --text2:#52525b; --text3:#a1a1aa;
+      --accent:#059669; --accent2:#db2777; --accent3:#d97706;
+      --glow:rgba(5,150,105,0.1); --shadow:0 20px 60px rgba(0,0,0,0.08);
+      --nav-bg:rgba(245,245,240,0.9); --tag-bg:rgba(5,150,105,0.07);
+      --tag-color:#059669; --tag-border:rgba(5,150,105,0.2);
     }
 
-    /* NOISE OVERLAY */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 999;
-      opacity: 0.4;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;font-weight:400;overflow-x:hidden;transition:background .4s var(--ease),color .4s var(--ease);cursor:none;}
+
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9000;}
+
+    /* CURSOR */
+    .cursor{position:fixed;width:10px;height:10px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+    .cursor-ring{position:fixed;width:36px;height:36px;border:1.5px solid var(--accent);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .3s var(--ease),height .3s var(--ease);opacity:.5;}
+    @media(pointer:coarse){.cursor,.cursor-ring{display:none;}body{cursor:auto;}}
 
     /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.2rem 3rem;
-      background: rgba(10,10,15,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
+    nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;justify-content:space-between;align-items:center;padding:1.25rem 3.5rem;background:var(--nav-bg);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border);transition:background .4s,border-color .4s;}
+    .nav-logo{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:500;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;}
+    .nav-right{display:flex;align-items:center;gap:2.5rem;}
+    .nav-links{display:flex;gap:2.5rem;list-style:none;}
+    .nav-links a{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text2);text-decoration:none;letter-spacing:.1em;transition:color .2s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);}
+    .nav-links a:hover{color:var(--text);}
+    .nav-links a:hover::after{transform:scaleX(1);}
 
-    .nav-logo {
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: var(--muted);
-      text-decoration: none;
-      letter-spacing: 0.08em;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover { color: var(--text); }
+    /* THEME TOGGLE */
+    .theme-toggle{width:52px;height:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;cursor:pointer;position:relative;transition:background .4s;flex-shrink:0;outline:none;}
+    .theme-toggle::before{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:var(--accent);top:2px;left:3px;transition:transform .4s var(--ease),background .4s;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+    [data-theme="light"] .theme-toggle::before{transform:translateX(23px);}
+    .toggle-icons{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 5px;font-size:.6rem;pointer-events:none;user-select:none;}
 
     /* HERO */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 6rem 3rem 3rem;
-      position: relative;
-      overflow: hidden;
-    }
+    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:center;padding:8rem 3.5rem 5rem;position:relative;overflow:hidden;}
+    .hero-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
+    .orb-1{width:500px;height:500px;background:var(--glow);top:-100px;right:100px;animation:orb1 8s ease-in-out infinite alternate;}
+    .orb-2{width:350px;height:350px;background:rgba(244,114,182,.06);bottom:-50px;left:-50px;animation:orb2 10s ease-in-out infinite alternate;}
+    @keyframes orb1{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,40px) scale(1.1)}}
+    @keyframes orb2{from{transform:translate(0,0) scale(1)}to{transform:translate(-20px,-30px) scale(1.05)}}
 
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(124,106,247,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(249,115,22,0.08) 0%, transparent 50%);
-    }
+    .hero-left{position:relative;z-index:1;}
+    .hero-badge{display:inline-flex;align-items:center;gap:.6rem;padding:.45rem 1.1rem;background:var(--tag-bg);border:1px solid var(--tag-border);border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2rem;opacity:0;animation:slideUp .7s .1s var(--ease) forwards;}
+    .pulse-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;flex-shrink:0;position:relative;}
+    .pulse-dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:var(--accent);animation:ripple 2s ease-out infinite;}
+    @keyframes ripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(3);opacity:0}}
 
-    .hero-grid {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
-      background-size: 60px 60px;
-    }
+    .hero h1{font-family:'Fraunces',serif;font-size:clamp(4rem,7vw,7.5rem);font-weight:900;line-height:.9;letter-spacing:-.03em;margin-bottom:2rem;opacity:0;animation:slideUp .8s .25s var(--ease) forwards;}
+    .hero h1 .name-line{display:block;}
+    .hero h1 .outline-text{color:transparent;-webkit-text-stroke:1.5px var(--text3);transition:-webkit-text-stroke-color .4s;}
+    .hero-desc{font-size:1.05rem;color:var(--text2);line-height:1.75;max-width:520px;margin-bottom:2.5rem;opacity:0;animation:slideUp .8s .4s var(--ease) forwards;}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:slideUp .8s .55s var(--ease) forwards;}
+    @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 
-    .hero-content {
-      position: relative;
-      max-width: 900px;
-    }
+    /* BTNS */
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 2rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:500;letter-spacing:.08em;text-decoration:none;transition:transform .25s var(--ease),box-shadow .25s,background .25s,color .25s;cursor:pointer;border:none;}
+    .btn-primary{background:var(--accent);color:var(--bg);}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 30px var(--glow);}
+    .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2);}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px);}
 
-    .hero-tag {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      color: var(--accent);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    /* PROFILE CARD */
+    .hero-right{position:relative;z-index:1;opacity:0;animation:slideUp .9s .5s var(--ease) forwards;}
+    .profile-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:2.5rem;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:background .4s,border-color .4s;}
+    .profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));}
+    .profile-avatar{width:72px;height:72px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:white;margin-bottom:1.25rem;}
+    .profile-name{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;margin-bottom:.25rem;}
+    .profile-role{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);letter-spacing:.1em;margin-bottom:1.5rem;}
+    .profile-divider{height:1px;background:var(--border);margin:1.5rem 0;}
+    .profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .pstat{text-align:center;padding:.75rem;background:var(--bg3);border-radius:4px;transition:background .4s;}
+    .pstat-num{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--accent);line-height:1;}
+    .pstat-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);letter-spacing:.08em;margin-top:.3rem;text-transform:uppercase;}
+    .profile-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem;}
+    .ptag{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text2);background:var(--bg3);border:1px solid var(--border);padding:.3rem .7rem;border-radius:2px;letter-spacing:.05em;transition:all .2s;cursor:default;}
+    .ptag:hover{background:var(--tag-bg);border-color:var(--tag-border);color:var(--accent);}
 
-    .hero-tag::before {
-      content: '';
-      width: 2rem;
-      height: 1px;
-      background: var(--accent);
-    }
-
-    .hero h1 {
-      font-family: var(--serif);
-      font-size: clamp(3.5rem, 8vw, 7rem);
-      font-weight: 900;
-      line-height: 0.95;
-      letter-spacing: -0.02em;
-      margin-bottom: 1.5rem;
-    }
-
-    .hero h1 span {
-      display: block;
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(124,106,247,0.5);
-    }
-
-    .hero-desc {
-      font-size: 1.1rem;
-      color: var(--muted);
-      max-width: 480px;
-      line-height: 1.7;
-      margin-bottom: 2.5rem;
-    }
-
-    .hero-cta {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 0.85rem 2rem;
-      border-radius: 3px;
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      letter-spacing: 0.1em;
-      text-decoration: none;
-      transition: all 0.25s;
-      cursor: pointer;
-      border: none;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: #6a58e8;
-      transform: translateY(-2px);
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-outline:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .hero-stats {
-      position: absolute;
-      right: 3rem;
-      bottom: 4rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      align-items: flex-end;
-    }
-
-    .stat {
-      text-align: right;
-    }
-
-    .stat-num {
-      font-family: var(--serif);
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--accent);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      margin-top: 0.25rem;
-    }
+    .scroll-hint{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);letter-spacing:.15em;animation:bounce 2s infinite;}
+    .scroll-line{width:1px;height:40px;background:linear-gradient(var(--accent),transparent);}
+    @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
 
     /* SECTIONS */
-    section {
-      padding: 6rem 3rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    .section-wrap{max-width:1200px;margin:0 auto;padding:7rem 3.5rem;}
+    .section-header{margin-bottom:4rem;}
+    .section-eyebrow{display:flex;align-items:center;gap:1rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.75rem;}
+    .eyebrow-line{width:3rem;height:1px;background:var(--accent);flex-shrink:0;}
+    .section-title{font-family:'Fraunces',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:700;line-height:1.05;letter-spacing:-.02em;}
+    .section-title em{font-style:italic;color:var(--accent);}
 
-    .section-label {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--accent);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-      max-width: 6rem;
-    }
-
-    .section-title {
-      font-family: var(--serif);
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 3rem;
-    }
+    /* ABOUT */
+    .about-strip{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);transition:background .4s;}
+    .about-inner{max-width:1200px;margin:0 auto;padding:5rem 3.5rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+    .about-text{font-family:'Fraunces',serif;font-size:clamp(1.2rem,2vw,1.5rem);font-weight:300;font-style:italic;line-height:1.65;color:var(--text);}
+    .about-text strong{font-weight:700;font-style:normal;color:var(--accent);}
+    .about-highlights{display:flex;flex-direction:column;gap:.75rem;}
+    .highlight-item{display:flex;align-items:center;gap:1rem;padding:.9rem 1.25rem;background:var(--card);border:1px solid var(--border);border-radius:4px;font-size:.88rem;color:var(--text2);transition:border-color .2s,transform .2s,background .4s,color .2s;}
+    .highlight-item:hover{border-color:var(--accent);transform:translateX(5px);color:var(--text);}
+    .hi-icon{width:34px;height:34px;background:var(--tag-bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
 
     /* SKILLS */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-    }
-
-    .skill-item {
-      background: var(--card);
-      padding: 1.75rem;
-      transition: background 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .skill-item::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 3px; height: 0;
-      background: var(--accent);
-      transition: height 0.3s;
-    }
-
-    .skill-item:hover { background: var(--surface); }
-    .skill-item:hover::before { height: 100%; }
-
-    .skill-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .skill-name {
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      color: var(--text);
-      margin-bottom: 0.4rem;
-      letter-spacing: 0.05em;
-    }
-
-    .skill-desc {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
+    .skills-section{background:var(--bg);}
+    .skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .skill-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2rem;position:relative;overflow:hidden;transition:transform .3s var(--ease),border-color .3s,box-shadow .3s,background .4s;}
+    .skill-card:hover{transform:translateY(-6px);border-color:var(--border2);box-shadow:0 20px 40px rgba(0,0,0,.15);}
+    .skill-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;}
+    .skill-icon-wrap{width:48px;height:48px;background:var(--tag-bg);border:1px solid var(--tag-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+    .skill-num{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);letter-spacing:.05em;}
+    .skill-card-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.5rem;}
+    .skill-card-desc{font-size:.84rem;color:var(--text2);line-height:1.65;}
+    .skill-card-bar{margin-top:1.25rem;height:2px;background:var(--border);border-radius:1px;overflow:hidden;}
+    .skill-card-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease);}
+    .skill-card.visible .skill-card-fill{transform:scaleX(1);}
 
     /* PROJECTS */
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .project-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2rem;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .project-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(124,106,247,0.05) 0%, transparent 60%);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .project-card:hover {
-      border-color: rgba(124,106,247,0.4);
-      transform: translateY(-4px);
-    }
-
-    .project-card:hover::after { opacity: 1; }
-
-    .project-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1rem;
-    }
-
-    .project-name {
-      font-family: var(--serif);
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .project-link {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--accent);
-      text-decoration: none;
-      letter-spacing: 0.05em;
-      padding: 0.3rem 0.7rem;
-      border: 1px solid rgba(124,106,247,0.3);
-      border-radius: 2px;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .project-link:hover {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    .project-desc {
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 1.25rem;
-    }
-
-    .project-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .tag {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--accent2);
-      background: rgba(249,115,22,0.08);
-      border: 1px solid rgba(249,115,22,0.2);
-      padding: 0.2rem 0.6rem;
-      border-radius: 2px;
-      letter-spacing: 0.05em;
-    }
+    .projects-bg{background:var(--bg2);transition:background .4s;}
+    .projects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;}
+    .proj-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:2rem;display:flex;flex-direction:column;gap:1rem;transition:transform .35s var(--ease),border-color .3s,box-shadow .35s,background .4s;position:relative;overflow:hidden;}
+    .proj-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,var(--glow),transparent 70%);opacity:0;transition:opacity .4s;}
+    .proj-card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 24px 50px rgba(0,0,0,.2);}
+    .proj-card:hover::before{opacity:1;}
+    .proj-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;}
+    .proj-num{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3);letter-spacing:.1em;}
+    .proj-link-btn{display:inline-flex;align-items:center;gap:.3rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);text-decoration:none;padding:.3rem .7rem;border:1px solid var(--tag-border);border-radius:2px;background:var(--tag-bg);transition:all .2s;letter-spacing:.05em;}
+    .proj-link-btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+    .proj-name{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;line-height:1.2;position:relative;}
+    .proj-desc{font-size:.85rem;color:var(--text2);line-height:1.7;flex:1;position:relative;}
+    .proj-tags{display:flex;flex-wrap:wrap;gap:.4rem;position:relative;}
+    .proj-tag{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--tag-color);background:var(--tag-bg);border:1px solid var(--tag-border);padding:.2rem .55rem;border-radius:2px;letter-spacing:.05em;}
+    .proj-card.featured{grid-column:span 2;flex-direction:row;align-items:center;gap:2.5rem;}
+    .proj-card.featured .proj-content{flex:1;}
+    .proj-card.featured .proj-name{font-size:2rem;}
+    .proj-featured-badge{display:inline-flex;align-items:center;gap:.4rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--accent3);letter-spacing:.1em;margin-bottom:.75rem;}
 
     /* EXPERIENCE */
-    .timeline {
-      position: relative;
-      padding-left: 2rem;
-    }
-
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0.5rem; bottom: 0;
-      width: 1px;
-      background: var(--border);
-    }
-
-    .timeline-item {
-      position: relative;
-      padding-bottom: 3rem;
-    }
-
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -2.35rem;
-      top: 0.45rem;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 12px var(--accent);
-    }
-
-    .timeline-date {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      margin-bottom: 0.5rem;
-    }
-
-    .timeline-role {
-      font-family: var(--serif);
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .timeline-company {
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 1rem;
-    }
-
-    .timeline-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .timeline-list li {
-      font-size: 0.88rem;
-      color: var(--muted);
-      padding-left: 1rem;
-      position: relative;
-      line-height: 1.5;
-    }
-
-    .timeline-list li::before {
-      content: '→';
-      position: absolute;
-      left: 0;
-      color: var(--accent);
-      font-size: 0.75rem;
-    }
+    .exp-section{background:var(--bg);}
+    .timeline-wrap{position:relative;padding-left:2.5rem;}
+    .timeline-track{position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(var(--border2),transparent);}
+    .exp-item{position:relative;padding-bottom:4rem;}
+    .exp-item:last-child{padding-bottom:0;}
+    .exp-dot{position:absolute;left:-2.85rem;top:4px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 0 3px var(--accent),0 0 20px var(--glow);transition:background .4s,border-color .4s;}
+    .exp-meta{display:flex;align-items:center;gap:1.5rem;margin-bottom:.75rem;flex-wrap:wrap;}
+    .exp-date{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:.12em;background:var(--tag-bg);border:1px solid var(--tag-border);padding:.25rem .75rem;border-radius:2px;}
+    .exp-type{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text3);letter-spacing:.1em;}
+    .exp-role{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;margin-bottom:.3rem;line-height:1.2;}
+    .exp-company{font-size:.9rem;color:var(--text2);margin-bottom:1.25rem;}
+    .exp-company span{color:var(--accent);}
+    .exp-list{list-style:none;display:flex;flex-direction:column;gap:.6rem;}
+    .exp-list li{font-size:.88rem;color:var(--text2);padding-left:1.5rem;position:relative;line-height:1.6;}
+    .exp-list li::before{content:'▹';position:absolute;left:0;color:var(--accent);font-size:.75rem;top:.05em;}
 
     /* EDUCATION */
-    .edu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .edu-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      padding: 1.5rem;
-      border-radius: 4px;
-    }
-
-    .edu-year {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--accent2);
-      letter-spacing: 0.1em;
-      margin-bottom: 0.5rem;
-    }
-
-    .edu-degree {
-      font-size: 0.95rem;
-      font-weight: 500;
-      margin-bottom: 0.3rem;
-    }
-
-    .edu-inst {
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
+    .edu-section{background:var(--bg2);transition:background .4s;}
+    .edu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .edu-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s var(--ease),background .4s;}
+    .edu-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease);}
+    .edu-card:hover{transform:translateY(-4px);border-color:var(--border2);}
+    .edu-card:hover::after{transform:scaleX(1);}
+    .edu-year{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent3);letter-spacing:.15em;margin-bottom:1rem;display:block;}
+    .edu-icon{font-size:2rem;margin-bottom:.75rem;display:block;}
+    .edu-degree{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.4rem;line-height:1.3;}
+    .edu-inst{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);letter-spacing:.05em;}
 
     /* CONTACT */
-    .contact-section {
-      text-align: center;
-      padding: 6rem 3rem;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-    }
-
-    .contact-section .section-label { justify-content: center; }
-    .contact-section .section-label::after { display: none; }
-
-    .contact-email {
-      font-family: var(--serif);
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      color: var(--text);
-      text-decoration: none;
-      display: inline-block;
-      margin: 1.5rem 0 2rem;
-      transition: color 0.2s;
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 0.25rem;
-    }
-
-    .contact-email:hover { color: var(--accent); }
-
-    .contact-info {
-      display: flex;
-      justify-content: center;
-      gap: 3rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-    }
-
-    .contact-item {
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .contact-item span { color: var(--accent); }
-
-    /* STATUS BADGE */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(34,197,94,0.1);
-      border: 1px solid rgba(34,197,94,0.25);
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--green);
-      letter-spacing: 0.05em;
-    }
-
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-      50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34,197,94,0); }
-    }
+    .contact-section{background:var(--bg);border-top:1px solid var(--border);transition:background .4s;}
+    .contact-inner{max-width:1200px;margin:0 auto;padding:7rem 3.5rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+    .contact-headline{font-family:'Fraunces',serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:900;line-height:1;letter-spacing:-.03em;margin-bottom:1.5rem;}
+    .contact-headline em{display:block;font-style:italic;color:var(--accent);}
+    .contact-sub{font-size:1rem;color:var(--text2);line-height:1.7;margin-bottom:2rem;}
+    .contact-cards{display:flex;flex-direction:column;gap:1rem;}
+    .contact-card{display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;background:var(--card);border:1px solid var(--border);border-radius:6px;text-decoration:none;color:var(--text);transition:all .25s var(--ease),background .4s;}
+    .contact-card:hover{border-color:var(--accent);transform:translateX(6px);box-shadow:-4px 0 20px var(--glow);}
+    .cc-icon{width:44px;height:44px;background:var(--tag-bg);border:1px solid var(--tag-border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .cc-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem;}
+    .cc-value{font-size:.9rem;font-weight:500;transition:color .2s;}
+    .contact-card:hover .cc-value{color:var(--accent);}
 
     /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
+    footer{background:var(--bg2);border-top:1px solid var(--border);padding:2rem 3.5rem;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text3);transition:background .4s;}
+    footer span{color:var(--accent);}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    .reveal-delay-1{transition-delay:.1s;}
+    .reveal-delay-2{transition-delay:.2s;}
+    .reveal-delay-3{transition-delay:.3s;}
+    .reveal-delay-4{transition-delay:.4s;}
+    .reveal-delay-5{transition-delay:.5s;}
+
+    /* RESPONSIVE */
+    @media(max-width:1024px){
+      .hero{grid-template-columns:1fr;padding-bottom:8rem;}
+      .hero-right{display:none;}
+      .skills-grid{grid-template-columns:repeat(2,1fr);}
+      .proj-card.featured{grid-column:span 1;flex-direction:column;}
+      .contact-inner{grid-template-columns:1fr;gap:3rem;}
+      .edu-grid{grid-template-columns:repeat(2,1fr);}
     }
-
-    /* FADE IN */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeIn 0.7s forwards;
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.25s; }
-    .delay-3 { animation-delay: 0.4s; }
-    .delay-4 { animation-delay: 0.55s; }
-
-    /* SCROLL REVEAL */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s, transform 0.6s;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 768px) {
-      nav { padding: 1rem 1.5rem; }
-      .nav-links { display: none; }
-      .hero { padding: 5rem 1.5rem 8rem; }
-      .hero-stats { right: 1.5rem; bottom: 2rem; flex-direction: row; gap: 1.5rem; }
-      section { padding: 4rem 1.5rem; }
-      .projects-grid { grid-template-columns: 1fr; }
-      .contact-section { padding: 4rem 1.5rem; }
+    @media(max-width:768px){
+      nav{padding:1rem 1.5rem;}
+      .nav-links{display:none;}
+      .hero,.section-wrap{padding-left:1.5rem;padding-right:1.5rem;}
+      .about-inner{grid-template-columns:1fr;gap:2rem;padding:3rem 1.5rem;}
+      .skills-grid,.projects-grid,.edu-grid{grid-template-columns:1fr;}
+      .proj-card.featured{grid-column:span 1;}
+      footer{flex-direction:column;gap:.5rem;text-align:center;padding:1.5rem;}
+      .contact-inner{padding:4rem 1.5rem;}
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-logo">bhupendra.dev</div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">BC / Portfolio</div>
+  <div class="nav-right">
     <ul class="nav-links">
+      <li><a href="#about">About</a></li>
       <li><a href="#skills">Skills</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#experience">Experience</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-  </nav>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <div class="toggle-icons"><span>🌙</span><span>☀️</span></div>
+    </button>
+  </div>
+</nav>
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
-    <div class="hero-content">
-      <div class="hero-tag fade-in delay-1">
-        <div class="status-badge"><div class="status-dot"></div> Available for work</div>
-      </div>
-      <h1 class="fade-in delay-2">
-        Bhupendra<br/>
-        <span>Choudhary</span>
-      </h1>
-      <p class="hero-desc fade-in delay-3">
-        Shopify Developer specializing in theme customization, platform migrations, and building scalable eCommerce experiences. Liquid · Metafields · API Integration.
-      </p>
-      <div class="hero-cta fade-in delay-4">
-        <a href="#projects" class="btn btn-primary">View Projects</a>
-        <a href="mailto:bheem702@gmail.com" class="btn btn-outline">Get in Touch</a>
-      </div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb orb-1"></div>
+  <div class="hero-orb orb-2"></div>
+  <div class="hero-left">
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      Available for Freelance &amp; Full-time
     </div>
-    <div class="hero-stats">
-      <div class="stat fade-in delay-2">
-        <div class="stat-num">2+</div>
-        <div class="stat-label">Years Experience</div>
+    <h1>
+      <span class="name-line">Bhupendra</span>
+      <span class="name-line outline-text">Choudhary</span>
+    </h1>
+    <p class="hero-desc">Shopify Developer with <strong>2+ years</strong> crafting scalable eCommerce experiences — theme customization, platform migrations, custom app logic, and B2B solutions.</p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn btn-primary">View My Work ↓</a>
+      <a href="mailto:bheem702@gmail.com" class="btn btn-ghost">Let's Talk →</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="profile-card">
+      <div class="profile-avatar">BC</div>
+      <div class="profile-name">Bhupendra Choudhary</div>
+      <div class="profile-role">SHOPIFY DEVELOPER · WEB DESIGNER</div>
+      <div class="profile-divider"></div>
+      <div class="profile-stats">
+        <div class="pstat"><div class="pstat-num">2+</div><div class="pstat-label">Yrs Exp</div></div>
+        <div class="pstat"><div class="pstat-num">7+</div><div class="pstat-label">Projects</div></div>
+        <div class="pstat"><div class="pstat-num">3</div><div class="pstat-label">Migrations</div></div>
+        <div class="pstat"><div class="pstat-num">∞</div><div class="pstat-label">Commits</div></div>
       </div>
-      <div class="stat fade-in delay-3">
-        <div class="stat-num">6+</div>
-        <div class="stat-label">Projects Delivered</div>
-      </div>
-      <div class="stat fade-in delay-4">
-        <div class="stat-num">3</div>
-        <div class="stat-label">Platform Migrations</div>
+      <div class="profile-tags">
+        <span class="ptag">Liquid</span><span class="ptag">Metafields</span><span class="ptag">Shopify API</span>
+        <span class="ptag">Matrixify</span><span class="ptag">HTML/CSS/JS</span><span class="ptag">B2B</span><span class="ptag">Markets</span>
       </div>
     </div>
   </div>
+  <div class="scroll-hint"><span>SCROLL</span><div class="scroll-line"></div></div>
+</section>
 
-  <!-- SKILLS -->
-  <section id="skills">
-    <div class="section-label reveal">Expertise</div>
-    <h2 class="section-title reveal">What I Work With</h2>
-    <div class="skills-grid reveal">
-      <div class="skill-item">
-        <div class="skill-icon">🛍️</div>
-        <div class="skill-name">Shopify & Liquid</div>
-        <div class="skill-desc">Theme customization, custom sections, dynamic content, metafields & metaobjects.</div>
+<!-- ABOUT -->
+<div class="about-strip" id="about">
+  <div class="about-inner">
+    <div class="about-text reveal">I turn <strong>complex eCommerce challenges</strong> into clean, scalable Shopify solutions — migrating legacy platforms, building custom logic, and crafting experiences that <strong>convert and delight</strong>.</div>
+    <div class="about-highlights">
+      <div class="highlight-item reveal reveal-delay-1"><div class="hi-icon">🔄</div>Magento &amp; Volusion → Shopify Migrations</div>
+      <div class="highlight-item reveal reveal-delay-2"><div class="hi-icon">🎨</div>Custom Shopify Theme Development</div>
+      <div class="highlight-item reveal reveal-delay-3"><div class="hi-icon">⚙️</div>Metafields, Metaobjects &amp; API Integration</div>
+      <div class="highlight-item reveal reveal-delay-4"><div class="hi-icon">🌍</div>Shopify Markets &amp; Multi-region Setup</div>
+      <div class="highlight-item reveal reveal-delay-5"><div class="hi-icon">💰</div>B2B Wholesale &amp; Dynamic Pricing Systems</div>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<div class="skills-section" id="skills">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-eyebrow"><div class="eyebrow-line"></div>Expertise</div>
+      <h2 class="section-title">What I <em>do best</em></h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal reveal-delay-1">
+        <div class="skill-card-top"><div class="skill-icon-wrap">🛍️</div><span class="skill-num">01</span></div>
+        <div class="skill-card-title">Shopify &amp; Liquid</div>
+        <div class="skill-card-desc">Deep expertise in theme customization, custom sections, dynamic content via metafields &amp; metaobjects, and performance optimization.</div>
+        <div class="skill-card-bar"><div class="skill-card-fill" style="width:95%"></div></div>
       </div>
-      <div class="skill-item">
-        <div class="skill-icon">🚀</div>
-        <div class="skill-name">Platform Migrations</div>
-        <div class="skill-desc">Magento → Shopify, Volusion → Shopify using Matrixify & Next-Cart for bulk data.</div>
+      <div class="skill-card reveal reveal-delay-2">
+        <div class="skill-card-top"><div class="skill-icon-wrap">🚀</div><span class="skill-num">02</span></div>
+        <div class="skill-card-title">Platform Migrations</div>
+        <div class="skill-card-desc">Magento → Shopify and Volusion → Shopify migrations using Matrixify &amp; Next-Cart. Full data: products, orders, customers, reviews, PDFs.</div>
+        <div class="skill-card-bar"><div class="skill-card-fill" style="width:90%"></div></div>
       </div>
-      <div class="skill-item">
-        <div class="skill-icon">🔌</div>
-        <div class="skill-name">API & App Integration</div>
-        <div class="skill-desc">Custom app logic, Shopify APIs, third-party app configuration and data flow.</div>
+      <div class="skill-card reveal reveal-delay-3">
+        <div class="skill-card-top"><div class="skill-icon-wrap">🔌</div><span class="skill-num">03</span></div>
+        <div class="skill-card-title">API &amp; App Integration</div>
+        <div class="skill-card-desc">Custom app logic for product &amp; order data, third-party app configuration, country redirection, and inventory tracking.</div>
+        <div class="skill-card-bar"><div class="skill-card-fill" style="width:85%"></div></div>
       </div>
-      <div class="skill-item">
-        <div class="skill-icon">🌍</div>
-        <div class="skill-name">Shopify Markets</div>
-        <div class="skill-desc">Multi-region setup, shipping rules, tax configuration, country-based content logic.</div>
+      <div class="skill-card reveal reveal-delay-1">
+        <div class="skill-card-top"><div class="skill-icon-wrap">🌍</div><span class="skill-num">04</span></div>
+        <div class="skill-card-title">Shopify Markets</div>
+        <div class="skill-card-desc">Multi-region configuration, shipping &amp; tax rules, country-based content logic, currency and language setup for global stores.</div>
+        <div class="skill-card-bar"><div class="skill-card-fill" style="width:88%"></div></div>
       </div>
-      <div class="skill-item">
-        <div class="skill-icon">💻</div>
-        <div class="skill-name">Frontend (HTML/CSS/JS)</div>
-        <div class="skill-desc">Responsive websites, UI improvements, performance optimization.</div>
+      <div class="skill-card reveal reveal-delay-2">
+        <div class="skill-card-top"><div class="skill-icon-wrap">💻</div><span class="skill-num">05</span></div>
+        <div class="skill-card-title">Frontend Development</div>
+        <div class="skill-card-desc">Responsive websites with HTML, CSS &amp; JavaScript. Performance optimization, UI improvements, custom blog templates and layouts.</div>
+        <div class="skill-card-bar"><div class="skill-card-fill" style="width:80%"></div></div>
       </div>
-      <div class="skill-item">
-        <div class="skill-icon">📊</div>
-        <div class="skill-name">Data Management</div>
-        <div class="skill-desc">Bulk product updates, Excel/CSV handling, structured catalog development.</div>
+      <div class="skill-card reveal reveal-delay-3">
+        <div class="skill-card-top"><div class="skill-icon-wrap">📊</div><span class="skill-num">06</span></div>
+        <div class="skill-card-title">Data &amp; Catalog Mgmt</div>
+        <div class="skill-card-desc">Bulk product updates via Excel/CSV, B2B catalog development, quantity-based pricing, structured data management at scale.</div>
+        <div class="skill-card-bar"><div class="skill-card-fill" style="width:87%"></div></div>
       </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- PROJECTS -->
-  <section id="projects">
-    <div class="section-label reveal">Work</div>
-    <h2 class="section-title reveal">Selected Projects</h2>
+<!-- PROJECTS -->
+<div class="projects-bg" id="projects">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-eyebrow"><div class="eyebrow-line"></div>Work</div>
+      <h2 class="section-title">Selected <em>Projects</em></h2>
+    </div>
     <div class="projects-grid">
-
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Sophie Conran</div>
-          <a href="https://www.sophieconran.com" target="_blank" class="project-link">↗ Visit</a>
-        </div>
-        <p class="project-desc">Full Magento → Shopify migration. Custom theme sections, dynamic metafields, app integrations for country redirection, inventory, and tracking.</p>
-        <div class="project-tags">
-          <span class="tag">Shopify</span><span class="tag">Liquid</span><span class="tag">Metafields</span><span class="tag">Migration</span>
-        </div>
-      </div>
-
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Performance PCs</div>
-          <a href="#" class="project-link">↗ Visit</a>
-        </div>
-        <p class="project-desc">Magento to Shopify migration of products, customers, orders, and product-specific PDFs using Matrixify. Migrated customer reviews.</p>
-        <div class="project-tags">
-          <span class="tag">Matrixify</span><span class="tag">Data Migration</span><span class="tag">Shopify</span>
+      <div class="proj-card featured reveal">
+        <div class="proj-content">
+          <div class="proj-featured-badge">⭐ Featured Project</div>
+          <div class="proj-top" style="margin-bottom:.75rem">
+            <div class="proj-num">01</div>
+            <a href="https://www.sophieconran.com" target="_blank" class="proj-link-btn">↗ Live Site</a>
+          </div>
+          <div class="proj-name">Sophie Conran</div>
+          <p class="proj-desc">Complete Magento → Shopify migration for a premium homeware brand. Built custom theme sections, implemented dynamic content via metafields, integrated apps for country redirection, inventory &amp; order tracking. Full platform overhaul with zero data loss.</p>
+          <div class="proj-tags">
+            <span class="proj-tag">Shopify</span><span class="proj-tag">Liquid</span><span class="proj-tag">Metafields</span><span class="proj-tag">Magento Migration</span><span class="proj-tag">App Integration</span>
+          </div>
         </div>
       </div>
 
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">MyZafera</div>
-          <a href="https://www.myzafera.com" target="_blank" class="project-link">↗ Visit</a>
-        </div>
-        <p class="project-desc">Built custom all-products catalogue page with quantity-based and B2B wholesale pricing system using Liquid + JavaScript.</p>
-        <div class="project-tags">
-          <span class="tag">Liquid</span><span class="tag">JavaScript</span><span class="tag">B2B</span><span class="tag">Pricing</span>
-        </div>
+      <div class="proj-card reveal reveal-delay-1">
+        <div class="proj-top"><div class="proj-num">02</div><a href="https://www.myzafera.com" target="_blank" class="proj-link-btn">↗ Live</a></div>
+        <div class="proj-name">MyZafera</div>
+        <p class="proj-desc">Custom "All Products Catalogue" with quantity-based pricing and B2B wholesale integration. Built with Liquid + JavaScript for complex pricing logic.</p>
+        <div class="proj-tags"><span class="proj-tag">B2B</span><span class="proj-tag">Liquid</span><span class="proj-tag">JavaScript</span><span class="proj-tag">Wholesale</span></div>
       </div>
 
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">STRICTLY Tattoo</div>
-          <a href="https://www.strictlytattoo.com.au" target="_blank" class="project-link">↗ Visit</a>
-        </div>
-        <p class="project-desc">Configured Shopify Markets for multiple regions, shipping/tax rules, bundled products, custom blog template, and country-based content logic.</p>
-        <div class="project-tags">
-          <span class="tag">Shopify Markets</span><span class="tag">Liquid</span><span class="tag">Multi-region</span>
-        </div>
+      <div class="proj-card reveal reveal-delay-2">
+        <div class="proj-top"><div class="proj-num">03</div><a href="https://www.strictlytattoo.com.au" target="_blank" class="proj-link-btn">↗ Live</a></div>
+        <div class="proj-name">STRICTLY Tattoo</div>
+        <p class="proj-desc">Shopify Markets for AU/NZ regions. Shipping/tax rules, bundled products, custom blog template, size guide apps, country-based content logic.</p>
+        <div class="proj-tags"><span class="proj-tag">Shopify Markets</span><span class="proj-tag">Multi-region</span><span class="proj-tag">Liquid</span></div>
       </div>
 
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Electric Bargain Store</div>
-          <a href="https://www.proebs.myshopify.com" target="_blank" class="project-link">↗ Visit</a>
-        </div>
-        <p class="project-desc">Volusion → Shopify migration using Next-Cart. Custom app logic for data modification, metafield data with orders, and theme customizations.</p>
-        <div class="project-tags">
-          <span class="tag">Next-Cart</span><span class="tag">Volusion</span><span class="tag">Custom App</span>
-        </div>
+      <div class="proj-card reveal reveal-delay-1">
+        <div class="proj-top"><div class="proj-num">04</div><a href="https://www.proebs.myshopify.com" target="_blank" class="proj-link-btn">↗ Live</a></div>
+        <div class="proj-name">Electric Bargain Store</div>
+        <p class="proj-desc">Volusion → Shopify migration using Next-Cart. Custom app logic for data modification, metafield data with orders, full theme customizations.</p>
+        <div class="proj-tags"><span class="proj-tag">Volusion</span><span class="proj-tag">Next-Cart</span><span class="proj-tag">Custom App</span></div>
       </div>
 
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">XY London</div>
-          <a href="https://www.xylondon.com" target="_blank" class="project-link">↗ Visit</a>
-        </div>
-        <p class="project-desc">Product migration via Matrixify, product grouping via app integration, and manual blog migration with structured content management.</p>
-        <div class="project-tags">
-          <span class="tag">Matrixify</span><span class="tag">Apps</span><span class="tag">Content</span>
-        </div>
+      <div class="proj-card reveal reveal-delay-2">
+        <div class="proj-top"><div class="proj-num">05</div><span class="proj-link-btn" style="opacity:.4;cursor:default">Private</span></div>
+        <div class="proj-name">Performance PCs</div>
+        <p class="proj-desc">Magento → Shopify using Matrixify. Migrated products, customers, orders, product PDFs mapped to products, and customer reviews.</p>
+        <div class="proj-tags"><span class="proj-tag">Matrixify</span><span class="proj-tag">Data Migration</span><span class="proj-tag">PDF Mapping</span></div>
       </div>
 
-      <div class="project-card reveal">
-        <div class="project-header">
-          <div class="project-name">Radium Auto</div>
-          <a href="https://www.radiumauto.com" target="_blank" class="project-link">↗ Visit</a>
-        </div>
-        <p class="project-desc">Customized product page sections with dynamic data display using metafields and custom Liquid code implementation.</p>
-        <div class="project-tags">
-          <span class="tag">Liquid</span><span class="tag">Metafields</span><span class="tag">Shopify</span>
-        </div>
+      <div class="proj-card reveal reveal-delay-3">
+        <div class="proj-top"><div class="proj-num">06</div><a href="https://www.xylondon.com" target="_blank" class="proj-link-btn">↗ Live</a></div>
+        <div class="proj-name">XY London</div>
+        <p class="proj-desc">Product migration via Matrixify, product grouping with app integration, manual blog migration and structured content management.</p>
+        <div class="proj-tags"><span class="proj-tag">Matrixify</span><span class="proj-tag">Apps</span><span class="proj-tag">Content</span></div>
       </div>
 
+      <div class="proj-card reveal reveal-delay-1">
+        <div class="proj-top"><div class="proj-num">07</div><a href="https://www.radiumauto.com" target="_blank" class="proj-link-btn">↗ Live</a></div>
+        <div class="proj-name">Radium Auto</div>
+        <p class="proj-desc">Product page customization with dynamic metafield data display. Custom Liquid code for enhanced product sections and dynamic content.</p>
+        <div class="proj-tags"><span class="proj-tag">Liquid</span><span class="proj-tag">Metafields</span><span class="proj-tag">Shopify</span></div>
+      </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- EXPERIENCE -->
-  <section id="experience">
-    <div class="section-label reveal">Career</div>
-    <h2 class="section-title reveal">Experience</h2>
-    <div class="timeline">
-      <div class="timeline-item reveal">
-        <div class="timeline-date">NOV 2023 — PRESENT</div>
-        <div class="timeline-role">Web Designer & Shopify Developer</div>
-        <div class="timeline-company">Expound Coderz Pvt. Ltd. · Dewas, Madhya Pradesh</div>
-        <ul class="timeline-list">
-          <li>Customized Shopify themes and built dynamic sections using Liquid</li>
-          <li>Handled Magento & Volusion to Shopify migrations using Matrixify & Next-Cart</li>
-          <li>Implemented metafields and metaobjects for dynamic store content</li>
-          <li>Created custom app logic to modify product and order data</li>
-          <li>Configured Shopify Markets, shipping rules, and tax setup</li>
-          <li>Designed responsive websites using HTML, CSS, and JavaScript</li>
+<!-- EXPERIENCE -->
+<div class="exp-section" id="experience">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-eyebrow"><div class="eyebrow-line"></div>Career</div>
+      <h2 class="section-title">Work <em>Experience</em></h2>
+    </div>
+    <div class="timeline-wrap">
+      <div class="timeline-track"></div>
+      <div class="exp-item reveal">
+        <div class="exp-dot"></div>
+        <div class="exp-meta">
+          <span class="exp-date">NOV 2023 — PRESENT</span>
+          <span class="exp-type">FULL-TIME</span>
+        </div>
+        <div class="exp-role">Web Designer &amp; Shopify Developer</div>
+        <div class="exp-company">Expound Coderz Pvt. Ltd. · <span>Dewas, Madhya Pradesh</span></div>
+        <ul class="exp-list">
+          <li>Customized Shopify themes and developed dynamic sections using Liquid templating</li>
+          <li>Handled Magento &amp; Volusion to Shopify migrations using Matrixify &amp; Next-Cart</li>
+          <li>Implemented metafields and metaobjects for flexible, dynamic store content</li>
+          <li>Built custom app logic to modify product and order data at checkout</li>
+          <li>Configured Shopify Markets for multi-region commerce with shipping &amp; tax rules</li>
+          <li>Designed and developed responsive websites using HTML, CSS &amp; JavaScript</li>
         </ul>
       </div>
-      <div class="timeline-item reveal">
-        <div class="timeline-date">MAR 2023 — AUG 2023</div>
-        <div class="timeline-role">Web Design & Development Intern</div>
-        <div class="timeline-company">Chamunda Softwares · Training & Internship</div>
-        <ul class="timeline-list">
-          <li>Developed a business website using HTML and CSS</li>
-          <li>Built a CRM system using PHP and MySQL</li>
+      <div class="exp-item reveal">
+        <div class="exp-dot" style="background:var(--accent3);box-shadow:0 0 0 3px var(--accent3),0 0 20px rgba(251,191,36,.2)"></div>
+        <div class="exp-meta">
+          <span class="exp-date" style="color:var(--accent3);background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.2)">MAR 2023 — AUG 2023</span>
+          <span class="exp-type">INTERNSHIP</span>
+        </div>
+        <div class="exp-role">Web Design &amp; Development Intern</div>
+        <div class="exp-company">Chamunda Softwares · <span>Training Programme</span></div>
+        <ul class="exp-list">
+          <li>Developed a complete business website using HTML and CSS</li>
+          <li>Built a CRM system from scratch using PHP and MySQL</li>
         </ul>
       </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- EDUCATION -->
-  <section>
-    <div class="section-label reveal">Background</div>
-    <h2 class="section-title reveal">Education</h2>
-    <div class="edu-grid reveal">
-      <div class="edu-card">
-        <div class="edu-year">2014 – 2018</div>
+<!-- EDUCATION -->
+<div class="edu-section">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-eyebrow"><div class="eyebrow-line"></div>Background</div>
+      <h2 class="section-title">My <em>Education</em></h2>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-card reveal reveal-delay-1">
+        <span class="edu-icon">🎓</span>
+        <span class="edu-year">2014 — 2018</span>
         <div class="edu-degree">Bachelor of Engineering</div>
         <div class="edu-inst">RGPV University, Bhopal</div>
       </div>
-      <div class="edu-card">
-        <div class="edu-year">2013 – 2014</div>
+      <div class="edu-card reveal reveal-delay-2">
+        <span class="edu-icon">📚</span>
+        <span class="edu-year">2013 — 2014</span>
         <div class="edu-degree">Higher Secondary (12th)</div>
         <div class="edu-inst">MP Board, Bhopal</div>
       </div>
-      <div class="edu-card">
-        <div class="edu-year">2011 – 2012</div>
+      <div class="edu-card reveal reveal-delay-3">
+        <span class="edu-icon">🏫</span>
+        <span class="edu-year">2011 — 2012</span>
         <div class="edu-degree">High School (10th)</div>
         <div class="edu-inst">CBSE Board, Delhi</div>
       </div>
     </div>
-  </section>
-
-  <!-- CONTACT -->
-  <div class="contact-section" id="contact">
-    <div class="section-label" style="justify-content:center;">Contact</div>
-    <h2 class="section-title" style="font-size:clamp(1.5rem,3vw,2rem); margin-bottom:0.5rem;">Let's work together</h2>
-    <a href="mailto:bheem702@gmail.com" class="contact-email">bheem702@gmail.com</a>
-    <div class="contact-info">
-      <div class="contact-item"><span>📞</span> +91 9039492535</div>
-      <div class="contact-item"><span>📍</span> Dewas, Madhya Pradesh</div>
-      <div class="contact-item"><span>💼</span> Open to Freelance & Full-time</div>
-    </div>
-    <a href="mailto:bheem702@gmail.com" class="btn btn-primary">Say Hello →</a>
   </div>
+</div>
 
-  <footer>
-    <p>© 2025 Bhupendra Choudhary · Shopify Developer · Built with HTML, CSS & care</p>
-  </footer>
+<!-- CONTACT -->
+<div class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="reveal">
+      <div class="section-eyebrow" style="margin-bottom:1rem"><div class="eyebrow-line"></div>Get in Touch</div>
+      <h2 class="contact-headline">Let's build<em>together.</em></h2>
+      <p class="contact-sub">Open to freelance projects, full-time roles, and interesting eCommerce collaborations. Based in Dewas, M.P. — available remotely worldwide.</p>
+      <a href="mailto:bheem702@gmail.com" class="btn btn-primary" style="font-size:.85rem;padding:1rem 2.5rem">Send Me a Message →</a>
+    </div>
+    <div class="contact-cards reveal reveal-delay-2">
+      <a href="mailto:bheem702@gmail.com" class="contact-card">
+        <div class="cc-icon">✉️</div>
+        <div><div class="cc-label">Email</div><div class="cc-value">bheem702@gmail.com</div></div>
+      </a>
+      <a href="tel:+919039492535" class="contact-card">
+        <div class="cc-icon">📱</div>
+        <div><div class="cc-label">Phone</div><div class="cc-value">+91 9039492535</div></div>
+      </a>
+      <div class="contact-card">
+        <div class="cc-icon">📍</div>
+        <div><div class="cc-label">Location</div><div class="cc-value">310/A Alkapuri, Dewas (M.P)</div></div>
+      </div>
+      <div class="contact-card">
+        <div class="cc-icon">💼</div>
+        <div><div class="cc-label">Availability</div><div class="cc-value" style="color:var(--accent)">✓ Open to Work</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <script>
-    // Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
+<!-- FOOTER -->
+<footer>
+  <span>© 2025 <span>Bhupendra Choudhary</span></span>
+  <span>Shopify Developer · Web Designer</span>
+  <span>Dewas, <span>M.P.</span> · India</span>
+</footer>
 
-    reveals.forEach(el => observer.observe(el));
-  </script>
+<script>
+  /* THEME TOGGLE */
+  const toggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  const saved = localStorage.getItem('bc-theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+
+  toggle.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('bc-theme', next);
+  });
+
+  /* CUSTOM CURSOR */
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  });
+  (function animRing(){
+    rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(animRing);
+  })();
+
+  /* SCROLL REVEAL */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, {threshold:.12});
+  document.querySelectorAll('.reveal, .skill-card').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
