@@ -1,59 +1,889 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Bhupendra | Shopify Developer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bhupendra Choudhary — Shopify Developer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    body { margin:0; font-family:Arial; background:#0f172a; color:#fff; }
-    .container { padding:40px; max-width:1000px; margin:auto; }
-    h1 { color:#38bdf8; }
-    .card { background:#1e293b; padding:20px; margin:20px 0; border-radius:10px; }
-    a { color:#38bdf8; text-decoration:none; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --card: #16161f;
+      --border: #1e1e2e;
+      --accent: #7c6af7;
+      --accent2: #f97316;
+      --green: #22c55e;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --mono: 'DM Mono', monospace;
+      --serif: 'Playfair Display', serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 6rem 3rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(124,106,247,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(249,115,22,0.08) 0%, transparent 50%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 900px;
+    }
+
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hero-tag::before {
+      content: '';
+      width: 2rem;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 span {
+      display: block;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(124,106,247,0.5);
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.85rem 2rem;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      transition: all 0.25s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #6a58e8;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      position: absolute;
+      right: 3rem;
+      bottom: 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      align-items: flex-end;
+    }
+
+    .stat {
+      text-align: right;
+    }
+
+    .stat-num {
+      font-family: var(--serif);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-top: 0.25rem;
+    }
+
+    /* SECTIONS */
+    section {
+      padding: 6rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      max-width: 6rem;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 3rem;
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .skill-item {
+      background: var(--card);
+      padding: 1.75rem;
+      transition: background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skill-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 0;
+      background: var(--accent);
+      transition: height 0.3s;
+    }
+
+    .skill-item:hover { background: var(--surface); }
+    .skill-item:hover::before { height: 100%; }
+
+    .skill-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .skill-name {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.05em;
+    }
+
+    .skill-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* PROJECTS */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(124,106,247,0.05) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .project-card:hover {
+      border-color: rgba(124,106,247,0.4);
+      transform: translateY(-4px);
+    }
+
+    .project-card:hover::after { opacity: 1; }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .project-name {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .project-link {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      padding: 0.3rem 0.7rem;
+      border: 1px solid rgba(124,106,247,0.3);
+      border-radius: 2px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .project-link:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .project-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--accent2);
+      background: rgba(249,115,22,0.08);
+      border: 1px solid rgba(249,115,22,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    /* EXPERIENCE */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0.5rem; bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 3rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2.35rem;
+      top: 0.45rem;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .timeline-date {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-role {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-company {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .timeline-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .timeline-list li {
+      font-size: 0.88rem;
+      color: var(--muted);
+      padding-left: 1rem;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .timeline-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.75rem;
+    }
+
+    /* EDUCATION */
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .edu-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 4px;
+    }
+
+    .edu-year {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent2);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .edu-degree {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+
+    .edu-inst {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* CONTACT */
+    .contact-section {
+      text-align: center;
+      padding: 6rem 3rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .contact-section .section-label { justify-content: center; }
+    .contact-section .section-label::after { display: none; }
+
+    .contact-email {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      color: var(--text);
+      text-decoration: none;
+      display: inline-block;
+      margin: 1.5rem 0 2rem;
+      transition: color 0.2s;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.25rem;
+    }
+
+    .contact-email:hover { color: var(--accent); }
+
+    .contact-info {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .contact-item {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .contact-item span { color: var(--accent); }
+
+    /* STATUS BADGE */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.25);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--green);
+      letter-spacing: 0.05em;
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* FADE IN */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.7s forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.25s; }
+    .delay-3 { animation-delay: 0.4s; }
+    .delay-4 { animation-delay: 0.55s; }
+
+    /* SCROLL REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s, transform 0.6s;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 5rem 1.5rem 8rem; }
+      .hero-stats { right: 1.5rem; bottom: 2rem; flex-direction: row; gap: 1.5rem; }
+      section { padding: 4rem 1.5rem; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .contact-section { padding: 4rem 1.5rem; }
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>Bhupendra Choudhary</h1>
-  <p>Shopify Developer | Liquid | Custom Apps | Migrations</p>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">bhupendra.dev</div>
+    <ul class="nav-links">
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-  <div class="card">
-    <h2>About Me</h2>
-    <p>2+ years experience in Shopify development, migrations, B2B systems, and custom solutions.</p>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-tag fade-in delay-1">
+        <div class="status-badge"><div class="status-dot"></div> Available for work</div>
+      </div>
+      <h1 class="fade-in delay-2">
+        Bhupendra<br/>
+        <span>Choudhary</span>
+      </h1>
+      <p class="hero-desc fade-in delay-3">
+        Shopify Developer specializing in theme customization, platform migrations, and building scalable eCommerce experiences. Liquid · Metafields · API Integration.
+      </p>
+      <div class="hero-cta fade-in delay-4">
+        <a href="#projects" class="btn btn-primary">View Projects</a>
+        <a href="mailto:bheem702@gmail.com" class="btn btn-outline">Get in Touch</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat fade-in delay-2">
+        <div class="stat-num">2+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div class="stat fade-in delay-3">
+        <div class="stat-num">6+</div>
+        <div class="stat-label">Projects Delivered</div>
+      </div>
+      <div class="stat fade-in delay-4">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Platform Migrations</div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Projects</h2>
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-label reveal">Expertise</div>
+    <h2 class="section-title reveal">What I Work With</h2>
+    <div class="skills-grid reveal">
+      <div class="skill-item">
+        <div class="skill-icon">🛍️</div>
+        <div class="skill-name">Shopify & Liquid</div>
+        <div class="skill-desc">Theme customization, custom sections, dynamic content, metafields & metaobjects.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🚀</div>
+        <div class="skill-name">Platform Migrations</div>
+        <div class="skill-desc">Magento → Shopify, Volusion → Shopify using Matrixify & Next-Cart for bulk data.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🔌</div>
+        <div class="skill-name">API & App Integration</div>
+        <div class="skill-desc">Custom app logic, Shopify APIs, third-party app configuration and data flow.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🌍</div>
+        <div class="skill-name">Shopify Markets</div>
+        <div class="skill-desc">Multi-region setup, shipping rules, tax configuration, country-based content logic.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">💻</div>
+        <div class="skill-name">Frontend (HTML/CSS/JS)</div>
+        <div class="skill-desc">Responsive websites, UI improvements, performance optimization.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">📊</div>
+        <div class="skill-name">Data Management</div>
+        <div class="skill-desc">Bulk product updates, Excel/CSV handling, structured catalog development.</div>
+      </div>
+    </div>
+  </section>
 
-    <p><b>Sophie Conran</b><br>
-    Theme customization, metafields, migration<br>
-    <a href="https://www.sophieconran.com">Visit</a></p>
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-label reveal">Work</div>
+    <h2 class="section-title reveal">Selected Projects</h2>
+    <div class="projects-grid">
 
-    <p><b>Performance PCs</b><br>
-    Magento migration + PDFs + reviews<br>
-    <a href="https://www.performance-pcs.com">Visit</a></p>
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">Sophie Conran</div>
+          <a href="https://www.sophieconran.com" target="_blank" class="project-link">↗ Visit</a>
+        </div>
+        <p class="project-desc">Full Magento → Shopify migration. Custom theme sections, dynamic metafields, app integrations for country redirection, inventory, and tracking.</p>
+        <div class="project-tags">
+          <span class="tag">Shopify</span><span class="tag">Liquid</span><span class="tag">Metafields</span><span class="tag">Migration</span>
+        </div>
+      </div>
 
-    <p><b>XY London</b><br>
-    Product migration & grouping<br>
-    <a href="https://www.xylondon.com">Visit</a></p>
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">Performance PCs</div>
+          <a href="#" class="project-link">↗ Visit</a>
+        </div>
+        <p class="project-desc">Magento to Shopify migration of products, customers, orders, and product-specific PDFs using Matrixify. Migrated customer reviews.</p>
+        <div class="project-tags">
+          <span class="tag">Matrixify</span><span class="tag">Data Migration</span><span class="tag">Shopify</span>
+        </div>
+      </div>
 
-    <p><b>MyZafera</b><br>
-    B2B catalog with dynamic pricing<br>
-    <a href="https://www.myzafera.com">Visit</a></p>
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">MyZafera</div>
+          <a href="https://www.myzafera.com" target="_blank" class="project-link">↗ Visit</a>
+        </div>
+        <p class="project-desc">Built custom all-products catalogue page with quantity-based and B2B wholesale pricing system using Liquid + JavaScript.</p>
+        <div class="project-tags">
+          <span class="tag">Liquid</span><span class="tag">JavaScript</span><span class="tag">B2B</span><span class="tag">Pricing</span>
+        </div>
+      </div>
 
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">STRICTLY Tattoo</div>
+          <a href="https://www.strictlytattoo.com.au" target="_blank" class="project-link">↗ Visit</a>
+        </div>
+        <p class="project-desc">Configured Shopify Markets for multiple regions, shipping/tax rules, bundled products, custom blog template, and country-based content logic.</p>
+        <div class="project-tags">
+          <span class="tag">Shopify Markets</span><span class="tag">Liquid</span><span class="tag">Multi-region</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">Electric Bargain Store</div>
+          <a href="https://www.proebs.myshopify.com" target="_blank" class="project-link">↗ Visit</a>
+        </div>
+        <p class="project-desc">Volusion → Shopify migration using Next-Cart. Custom app logic for data modification, metafield data with orders, and theme customizations.</p>
+        <div class="project-tags">
+          <span class="tag">Next-Cart</span><span class="tag">Volusion</span><span class="tag">Custom App</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">XY London</div>
+          <a href="https://www.xylondon.com" target="_blank" class="project-link">↗ Visit</a>
+        </div>
+        <p class="project-desc">Product migration via Matrixify, product grouping via app integration, and manual blog migration with structured content management.</p>
+        <div class="project-tags">
+          <span class="tag">Matrixify</span><span class="tag">Apps</span><span class="tag">Content</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-name">Radium Auto</div>
+          <a href="https://www.radiumauto.com" target="_blank" class="project-link">↗ Visit</a>
+        </div>
+        <p class="project-desc">Customized product page sections with dynamic data display using metafields and custom Liquid code implementation.</p>
+        <div class="project-tags">
+          <span class="tag">Liquid</span><span class="tag">Metafields</span><span class="tag">Shopify</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="section-label reveal">Career</div>
+    <h2 class="section-title reveal">Experience</h2>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-date">NOV 2023 — PRESENT</div>
+        <div class="timeline-role">Web Designer & Shopify Developer</div>
+        <div class="timeline-company">Expound Coderz Pvt. Ltd. · Dewas, Madhya Pradesh</div>
+        <ul class="timeline-list">
+          <li>Customized Shopify themes and built dynamic sections using Liquid</li>
+          <li>Handled Magento & Volusion to Shopify migrations using Matrixify & Next-Cart</li>
+          <li>Implemented metafields and metaobjects for dynamic store content</li>
+          <li>Created custom app logic to modify product and order data</li>
+          <li>Configured Shopify Markets, shipping rules, and tax setup</li>
+          <li>Designed responsive websites using HTML, CSS, and JavaScript</li>
+        </ul>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-date">MAR 2023 — AUG 2023</div>
+        <div class="timeline-role">Web Design & Development Intern</div>
+        <div class="timeline-company">Chamunda Softwares · Training & Internship</div>
+        <ul class="timeline-list">
+          <li>Developed a business website using HTML and CSS</li>
+          <li>Built a CRM system using PHP and MySQL</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section>
+    <div class="section-label reveal">Background</div>
+    <h2 class="section-title reveal">Education</h2>
+    <div class="edu-grid reveal">
+      <div class="edu-card">
+        <div class="edu-year">2014 – 2018</div>
+        <div class="edu-degree">Bachelor of Engineering</div>
+        <div class="edu-inst">RGPV University, Bhopal</div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-year">2013 – 2014</div>
+        <div class="edu-degree">Higher Secondary (12th)</div>
+        <div class="edu-inst">MP Board, Bhopal</div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-year">2011 – 2012</div>
+        <div class="edu-degree">High School (10th)</div>
+        <div class="edu-inst">CBSE Board, Delhi</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <div class="contact-section" id="contact">
+    <div class="section-label" style="justify-content:center;">Contact</div>
+    <h2 class="section-title" style="font-size:clamp(1.5rem,3vw,2rem); margin-bottom:0.5rem;">Let's work together</h2>
+    <a href="mailto:bheem702@gmail.com" class="contact-email">bheem702@gmail.com</a>
+    <div class="contact-info">
+      <div class="contact-item"><span>📞</span> +91 9039492535</div>
+      <div class="contact-item"><span>📍</span> Dewas, Madhya Pradesh</div>
+      <div class="contact-item"><span>💼</span> Open to Freelance & Full-time</div>
+    </div>
+    <a href="mailto:bheem702@gmail.com" class="btn btn-primary">Say Hello →</a>
   </div>
 
-  <div class="card">
-    <h2>Skills</h2>
-    <p>Shopify, Liquid, JS, Metafields, APIs, AI Tools</p>
-  </div>
+  <footer>
+    <p>© 2025 Bhupendra Choudhary · Shopify Developer · Built with HTML, CSS & care</p>
+  </footer>
 
-  <div class="card">
-    <h2>Contact</h2>
-    <p>Email: yourmail@gmail.com</p>
-  </div>
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
 
-</div>
-
+    reveals.forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
